@@ -1,17 +1,16 @@
-# ArtifactBin Template Project
-
-Welcome to the ArtifactBin template project! This repository serves as a starting point for deploying React components created on [ArtifactBin.com](https://artifactbin.com) to Vercel.
+# Commercial Invoice Generation Tool
 
 ## Overview
 
-This template project is designed to work seamlessly with ArtifactBin.com, allowing you to quickly deploy your React components to Vercel with just a few clicks. The project structure is set up to accommodate the React component you create on ArtifactBin.com.
+This software was born out of a need to generate highly-detailed commercial invoices for products being imported into the United States of America
+I work in the retail fixture and displays business, and thus the code as written is geared towards those product classifications. 
 
 ## Project Structure
 
 ```
 /
 ├── app/
-│   └── page.tsx    # Your React component will be placed here
+│   └── page.tsx    # The tool code lives here
 ├── public/
 │   └── ...         # Static assets
 ├── .gitignore
@@ -23,54 +22,8 @@ This template project is designed to work seamlessly with ArtifactBin.com, allow
 
 # Usage
 
-1. Clone this repository or use it as a template.
-2. Replace the content in src/app/page.tsx with your React component from ArtifactBin.
-3. Deploy to Vercel using the button above.
 
-For more detailed instructions, visit [ArtifactBin.com](https://artifactbin.com).
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/)
-
-## Customization
-
-After deployment, you can further customize your project by cloning it from Vercel and making additional changes. Some ideas for customization:
-
-- Add more pages or components
-- Customize the layout in `app/layout.tsx`
-- Add global styles in `app/globals.css`
-- Configure Next.js options in `next.config.js`
-
-## Requirements
-
-This template project uses:
-
-- [Next.js 14](https://nextjs.org/)
-- [React 18](https://reactjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-
-## Local Development
-
-If you want to run this project locally:
-
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Run the development server:
-   ```
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Contributing
-
-We welcome contributions to improve this template project! Please feel free to submit issues or pull requests.
-
-## Support
-
-If you encounter any problems or have questions, please file an issue on the [ArtifactBin GitHub repository](https://github.com/artifactbin/template-project/issues) or contact support@artifactbin.com.
 
 ## License
 
-This template project is released under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project uses code from the Artifact Bin Template project for deployment to the Vercel environment https://github.com/HamedMP/ArtifactbinTemplate/
