@@ -536,7 +536,7 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
     <div className="max-w-6xl mx-auto p-6 bg-white">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">US Customs Commercial Invoice Generator</h1>
-        <p className="text-gray-600">Generate US Customs compliant commercial invoices with tariff validation</p>
+        <p className="text-gray-600">Generate compliant commercial invoices with tariff validation</p>
         
         {/* API Status Indicator */}
         <div className="mt-2 flex items-center gap-2 text-sm">
