@@ -1458,4 +1458,4 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
   );
 };
 
-export default CustomsInvoiceGenerator; 
+export default CustomsInvoiceGenerator;  
