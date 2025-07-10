@@ -1428,5 +1428,3 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
     </div>
   );
 };
-
-export default CustomsInvoiceGenerator; p-2 text-left">Description</th>
