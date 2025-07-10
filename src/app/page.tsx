@@ -1254,6 +1254,13 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                               {nonMetalTariffs.join(', ') || 'None'}
                               {item.ieepaExclusion && <div style={{color: '#dc2626'}}>Excl: {item.ieepaExclusion}</div>}
                             </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs">-</td>
+                            <td className="border border-gray-300 p-2 text-center text-xs">
+                              {item.section301Applicable ? '9903.88.xx' : '-'}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs">
+                              {item.ieepaApplicable ? (item.ieepaExclusion || '9903.01.xx') : '-'}
+                            </td>
                           </tr>,
                           // Second row: Metal component (Section 232)
                           <tr key={`${index}-metal`}>
@@ -1270,6 +1277,15 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                             <td className="border border-gray-300 p-2 text-center text-xs" style={{backgroundColor: '#fef3c7'}}>
                               {metalTariffs.join(', ')}
                               {item.ieepaExclusion && <div style={{color: '#dc2626'}}>Excl: {item.ieepaExclusion}</div>}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs" style={{backgroundColor: '#fef3c7', fontFamily: 'monospace'}}>
+                              {item.section232HtsCode}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs" style={{backgroundColor: '#fef3c7'}}>
+                              {item.section301Applicable ? '9903.88.xx' : '-'}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs" style={{backgroundColor: '#fef3c7'}}>
+                              {item.ieepaApplicable ? (item.ieepaExclusion || '9903.01.xx') : '-'}
                             </td>
                           </tr>
                         ];
@@ -1296,6 +1312,15 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                               {tariffs.join(', ') || 'None'}
                               {item.ieepaExclusion && <div style={{color: '#dc2626'}}>Excl: {item.ieepaExclusion}</div>}
                             </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs" style={{fontFamily: 'monospace'}}>
+                              {item.section232Applicable ? (item.section232HtsCode || 'Required') : '-'}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs">
+                              {item.section301Applicable ? '9903.88.xx' : '-'}
+                            </td>
+                            <td className="border border-gray-300 p-2 text-center text-xs">
+                              {item.ieepaApplicable ? (item.ieepaExclusion || '9903.01.xx') : '-'}
+                            </td>
                           </tr>
                         );
                       }
@@ -1305,6 +1330,9 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                     <tr style={{backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
                       <td colSpan="5" className="border border-gray-300 p-2 text-right">TOTAL:</td>
                       <td className="border border-gray-300 p-2 text-right">${totals.totalValue.toFixed(2)} {invoice.shipment.currency}</td>
+                      <td className="border border-gray-300 p-2"></td>
+                      <td className="border border-gray-300 p-2"></td>
+                      <td className="border border-gray-300 p-2"></td>
                       <td className="border border-gray-300 p-2"></td>
                     </tr>
                   </tfoot>
