@@ -1428,3 +1428,9 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
     </div>
   );
 };
+
+export default CustomsInvoiceGenerator; p-2 text-left">Description</th>
+                      <th className="border border-gray-300 p-2 text-left">HTS Code</th>
+                      <th className="border border-gray-300 p-2 text-left">Origin</th>
+                      <th className="border border-gray-300 p-2 text-center">Qty</th>
+                      <th className="border border-gray-300 
