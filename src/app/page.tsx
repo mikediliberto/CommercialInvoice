@@ -1326,6 +1326,7 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                       }
                     }).flat()}
                   </tbody>
+                  </tbody>
                   <tfoot>
                     <tr style={{backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
                       <td colSpan="5" className="border border-gray-300 p-2 text-right">TOTAL:</td>
