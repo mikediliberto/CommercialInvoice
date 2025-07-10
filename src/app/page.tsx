@@ -1224,15 +1224,21 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                       const metalValue = parseFloat(item.section232MetalValue) || 0;
                       const nonMetalValue = totalValue - metalValue;
                       
-                      const rows = [];
+                      // Check if this item should be split for Section 232
+                      const shouldSplit = item.section232Applicable && metalValue > 0 && item.section232HtsCode;
                       
-                      if (item.section232Applicable && metalValue > 0 && item.section232HtsCode) {
-                        // First row: Non-metal component
+                      if (shouldSplit) {
+                        // Return array of two JSX elements for Section 232 items
                         const nonMetalTariffs = [];
                         if (item.section301Applicable) nonMetalTariffs.push('301');
                         if (item.ieepaApplicable) nonMetalTariffs.push('IEEPA');
                         
-                        rows.push(
+                        const metalTariffs = ['232'];
+                        if (item.section301Applicable) metalTariffs.push('301');
+                        if (item.ieepaApplicable) metalTariffs.push('IEEPA');
+                        
+                        return [
+                          // First row: Non-metal component
                           <tr key={`${index}-nonmetal`}>
                             <td className="border border-gray-300 p-2">
                               <div className="font-medium">{item.description || 'N/A'} (Non-metal component)</div>
@@ -1248,15 +1254,8 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                               {nonMetalTariffs.join(', ') || 'None'}
                               {item.ieepaExclusion && <div style={{color: '#dc2626'}}>Excl: {item.ieepaExclusion}</div>}
                             </td>
-                          </tr>
-                        );
-                        
-                        // Second row: Metal component (Section 232)
-                        const metalTariffs = ['232'];
-                        if (item.section301Applicable) metalTariffs.push('301');
-                        if (item.ieepaApplicable) metalTariffs.push('IEEPA');
-                        
-                        rows.push(
+                          </tr>,
+                          // Second row: Metal component (Section 232)
                           <tr key={`${index}-metal`}>
                             <td className="border border-gray-300 p-2">
                               <div className="font-medium">{item.description || 'N/A'} (Metal component - Section 232)</div>
@@ -1273,15 +1272,15 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                               {item.ieepaExclusion && <div style={{color: '#dc2626'}}>Excl: {item.ieepaExclusion}</div>}
                             </td>
                           </tr>
-                        );
+                        ];
                       } else {
-                        // Single row for non-Section 232 items or incomplete Section 232 items
+                        // Single row for non-Section 232 items
                         const tariffs = [];
                         if (item.section232Applicable) tariffs.push('232');
                         if (item.section301Applicable) tariffs.push('301');
                         if (item.ieepaApplicable) tariffs.push('IEEPA');
                         
-                        rows.push(
+                        return (
                           <tr key={index}>
                             <td className="border border-gray-300 p-2">
                               <div className="font-medium">{item.description || 'N/A'}</div>
@@ -1300,8 +1299,6 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                           </tr>
                         );
                       }
-                      
-                      return rows;
                     }).flat()}
                   </tbody>
                   <tfoot>
