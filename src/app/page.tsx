@@ -142,15 +142,27 @@ const CustomsInvoiceGenerator = () => {
     setApiStatus({ loading: true, error: null, lastUpdated: null });
     
     try {
-      // Use the most current HTS data from USITC (2025 Revision 13)
-      const response = await fetch('https://catalog.data.gov/dataset/harmonized-tariff-schedule-of-the-united-states-2024/resource/3b295bc2-9765-4080-81e4-3645d49a8acd/download/hts2025revision13.json');
+      // Use direct USITC endpoint (handles redirect internally)
+      const response = await fetch('https://www.usitc.gov/sites/default/files/tata/hts/hts_2025_revision_13_json.json', {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'CommercialInvoice/1.0'
+        },
+        // Add timeout to prevent hanging
+        signal: AbortSignal.timeout(30000)
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
-      setHtsData(data);
+      // Filter to only tariff-relevant entries to reduce memory usage
+      const filteredData = Array.isArray(data) ? data.filter(entry => 
+        entry.htsno && entry.htsno.length >= 4 && entry.general
+      ) : [];
+      
+      setHtsData(filteredData);
       setApiStatus({ 
         loading: false, 
         error: null, 
@@ -188,16 +200,16 @@ const CustomsInvoiceGenerator = () => {
     }
     
     // If we have HTS API data, use it for more accurate detection
-    if (htsData && (htsData as any).data && Array.isArray((htsData as any).data)) {
-      const htsEntry = (htsData as any).data.find((entry: any) => 
-        entry.hts_number === htsCode || 
-        entry.hts_number?.startsWith(htsCode.substring(0, 8)) ||
-        entry.hts_number?.startsWith(htsCode.substring(0, 6))
+    if (htsData && Array.isArray(htsData)) {
+      const htsEntry = (htsData as any).find((entry: any) => 
+        entry.htsno === htsCode || 
+        entry.htsno?.startsWith(htsCode.substring(0, 8)) ||
+        entry.htsno?.startsWith(htsCode.substring(0, 6))
       );
       
       if (htsEntry) {
         // Extract base tariff rate
-        detection.tariffRate = htsEntry.general_rate || htsEntry.col1_rate || 'Free';
+        detection.tariffRate = htsEntry.general || htsEntry.special || 'Free';
         
         // Check for Section 232 indicators in the data
         const description = (htsEntry.description || '').toLowerCase();
@@ -211,10 +223,10 @@ const CustomsInvoiceGenerator = () => {
         // Check for Section 301 indicators
         if (['China', 'CN', 'Hong Kong', 'HK', 'Macau', 'MO'].includes(countryOfOrigin)) {
           // Look for additional duties in the HTS data
-          const additionalDuties = htsEntry.additional_duties || [];
-          const hasSection301 = additionalDuties.some((duty: any) => 
-            duty.includes('9903.88') || duty.includes('301') || duty.includes('china')
-          );
+          const additionalDuties = htsEntry.additionalDuties || '';
+          const footnotes = htsEntry.footnotes || [];
+          const hasSection301 = additionalDuties.includes('9903.88') || 
+            footnotes.some((note: any) => note.value?.includes('9903.88'));
           if (hasSection301) {
             detection.section301 = true;
           }
