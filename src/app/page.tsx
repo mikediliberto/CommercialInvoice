@@ -1,4 +1,5 @@
-'use client';
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Info, Download, Plus, Trash2, Copy, FileText, Printer } from 'lucide-react';
 
@@ -69,13 +70,13 @@ const CustomsInvoiceGenerator = () => {
     }]
   });
 
-  const [warnings, setWarnings] = useState([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [totals, setTotals] = useState({ totalValue: 0, totalItems: 0 });
   const [showInvoicePreview, setShowInvoicePreview] = useState(false);
   const [generatedInvoiceData, setGeneratedInvoiceData] = useState('');
   const [showPrintableInvoice, setShowPrintableInvoice] = useState(false);
   const [htsData, setHtsData] = useState(null);
-  const [apiStatus, setApiStatus] = useState({ loading: false, error: null, lastUpdated: null });
+  const [apiStatus, setApiStatus] = useState<{loading: boolean, error: string | null, lastUpdated: string | null}>({ loading: false, error: null, lastUpdated: null });
 
   const commonHtsCodes = {
     'Furniture - Other Furniture Parts (Wood/Metal)': '9403.99.90.45',
@@ -160,7 +161,7 @@ const CustomsInvoiceGenerator = () => {
       console.error('Error fetching HTS data:', error);
       setApiStatus({ 
         loading: false, 
-        error: error.message, 
+        error: error instanceof Error ? error.message : 'Unknown error', 
         lastUpdated: null 
       });
     }
@@ -172,7 +173,7 @@ const CustomsInvoiceGenerator = () => {
   }, []);
 
   // Enhanced auto-detect function using USITC data
-  const autoDetectTariffsFromApi = (htsCode, countryOfOrigin) => {
+  const autoDetectTariffsFromApi = (htsCode: string, countryOfOrigin: string) => {
     const detection = {
       section232: false,
       section301: false,
@@ -182,13 +183,13 @@ const CustomsInvoiceGenerator = () => {
     };
     
     // IEEPA detection (always works without API)
-    if (ieepaCountries[countryOfOrigin]) {
+    if (ieepaCountries[countryOfOrigin as keyof typeof ieepaCountries]) {
       detection.ieepa = true;
     }
     
     // If we have HTS API data, use it for more accurate detection
-    if (htsData && htsData.data && Array.isArray(htsData.data)) {
-      const htsEntry = htsData.data.find(entry => 
+    if (htsData && (htsData as any).data && Array.isArray((htsData as any).data)) {
+      const htsEntry = (htsData as any).data.find((entry: any) => 
         entry.hts_number === htsCode || 
         entry.hts_number?.startsWith(htsCode.substring(0, 8)) ||
         entry.hts_number?.startsWith(htsCode.substring(0, 6))
@@ -211,7 +212,7 @@ const CustomsInvoiceGenerator = () => {
         if (['China', 'CN', 'Hong Kong', 'HK', 'Macau', 'MO'].includes(countryOfOrigin)) {
           // Look for additional duties in the HTS data
           const additionalDuties = htsEntry.additional_duties || [];
-          const hasSection301 = additionalDuties.some(duty => 
+          const hasSection301 = additionalDuties.some((duty: any) => 
             duty.includes('9903.88') || duty.includes('301') || duty.includes('china')
           );
           if (hasSection301) {
@@ -251,7 +252,7 @@ const CustomsInvoiceGenerator = () => {
   }, [invoice.items]);
 
   useEffect(() => {
-    const newWarnings = [];
+    const newWarnings: string[] = [];
     
     invoice.items.forEach((item, index) => {
       const effectiveHtsCode = item.productCategory === 'CUSTOM' ? item.customHtsCode : item.htsCode;
@@ -309,14 +310,14 @@ const CustomsInvoiceGenerator = () => {
     }));
   };
 
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     setInvoice(prev => ({
       ...prev,
       items: prev.items.filter((_, i) => i !== index)
     }));
   };
 
-  const updateItem = (index, field, value) => {
+  const updateItem = (index: number, field: string, value: any) => {
     setInvoice(prev => ({
       ...prev,
       items: prev.items.map((item, i) => {
@@ -328,7 +329,7 @@ const CustomsInvoiceGenerator = () => {
               updatedItem.htsCode = '';
               updatedItem.customHtsCode = '';
             } else {
-              updatedItem.htsCode = commonHtsCodes[value] || '';
+              updatedItem.htsCode = commonHtsCodes[value as keyof typeof commonHtsCodes] || '';
               updatedItem.customHtsCode = '';
               
               if (updatedItem.htsCode && updatedItem.countryOfOrigin) {
@@ -357,7 +358,7 @@ const CustomsInvoiceGenerator = () => {
               updatedItem.section301Applicable = detection.section301;
               updatedItem.ieepaApplicable = detection.ieepa;
             } else {
-              updatedItem.ieepaApplicable = !!ieepaCountries[value];
+              updatedItem.ieepaApplicable = !!ieepaCountries[value as keyof typeof ieepaCountries];
             }
           }
           
@@ -374,11 +375,11 @@ const CustomsInvoiceGenerator = () => {
     }));
   };
 
-  const updateInvoiceField = (section, field, value) => {
+  const updateInvoiceField = (section: string, field: string, value: any) => {
     setInvoice(prev => ({
       ...prev,
       [section]: {
-        ...prev[section],
+        ...(prev as any)[section],
         [field]: value
       }
     }));
@@ -501,6 +502,8 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
   };
 
   const downloadInvoice = () => {
+    if (typeof window === 'undefined') return;
+    
     const blob = new Blob([generatedInvoiceData], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -513,11 +516,13 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
   };
 
   const copyToClipboard = async () => {
+    if (typeof window === 'undefined') return;
+    
     try {
       await navigator.clipboard.writeText(generatedInvoiceData);
-      alert('Invoice copied to clipboard!');
+      console.log('Invoice copied to clipboard!');
     } catch (err) {
-      alert('Copy failed. Please select and copy manually.');
+      console.error('Copy failed. Please select and copy manually.');
     }
   };
 
@@ -527,12 +532,13 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
 
   const printInvoice = () => {
     setTimeout(() => {
-      window.print();
+      if (typeof window !== 'undefined') {
+        window.print();
+      }
     }, 100);
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white">
     <div className="max-w-6xl mx-auto p-6 bg-white">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">US Customs Commercial Invoice Generator</h1>
@@ -918,7 +924,7 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                 </select>
                 {item.productCategory && item.productCategory !== 'CUSTOM' && (
                   <div className="mt-1 text-sm text-gray-600">
-                    HTS Code: {commonHtsCodes[item.productCategory]}
+                    HTS Code: {commonHtsCodes[item.productCategory as keyof typeof commonHtsCodes]}
                   </div>
                 )}
               </div>
@@ -943,7 +949,7 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                     onChange={(e) => updateItem(index, 'customHtsCode', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="1234567890"
-                    maxLength="10"
+                    maxLength={10}
                   />
                 </div>
               )}
@@ -957,9 +963,9 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="China"
                 />
-                {ieepaCountries[item.countryOfOrigin] && (
+                {ieepaCountries[item.countryOfOrigin as keyof typeof ieepaCountries] && (
                   <div className="mt-1 text-xs text-red-600">
-                    ⚠️ IEEPA: {ieepaCountries[item.countryOfOrigin].description}
+                    ⚠️ IEEPA: {ieepaCountries[item.countryOfOrigin as keyof typeof ieepaCountries]?.description}
                   </div>
                 )}
               </div>
@@ -1099,7 +1105,7 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                 value={item.notes}
                 onChange={(e) => updateItem(index, 'notes', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows="2"
+                rows={2}
                 placeholder="Additional notes"
               />
             </div>
@@ -1212,9 +1218,16 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                 <table className="w-full text-xs border-collapse border border-gray-300">
                   <thead>
                     <tr style={{backgroundColor: '#f0f0f0'}}>
+                      <th className="border border-gray-300 p-2 text-left">Description</th>
+                      <th className="border border-gray-300 p-2 text-center">HTS Code</th>
+                      <th className="border border-gray-300 p-2 text-center">Country</th>
+                      <th className="border border-gray-300 p-2 text-center">Qty</th>
                       <th className="border border-gray-300 p-2 text-right">Unit Price</th>
                       <th className="border border-gray-300 p-2 text-right">Total</th>
                       <th className="border border-gray-300 p-2 text-center">Tariffs</th>
+                      <th className="border border-gray-300 p-2 text-center">Sec 232</th>
+                      <th className="border border-gray-300 p-2 text-center">Sec 301</th>
+                      <th className="border border-gray-300 p-2 text-center">IEEPA</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1326,10 +1339,9 @@ ${warnings.length > 0 ? 'WARNINGS:\n' + warnings.map(w => `- ${w}`).join('\n') :
                       }
                     }).flat()}
                   </tbody>
-                  </tbody>
                   <tfoot>
                     <tr style={{backgroundColor: '#f0f0f0', fontWeight: 'bold'}}>
-                      <td colSpan="5" className="border border-gray-300 p-2 text-right">TOTAL:</td>
+                      <td colSpan={5} className="border border-gray-300 p-2 text-right">TOTAL:</td>
                       <td className="border border-gray-300 p-2 text-right">${totals.totalValue.toFixed(2)} {invoice.shipment.currency}</td>
                       <td className="border border-gray-300 p-2"></td>
                       <td className="border border-gray-300 p-2"></td>
